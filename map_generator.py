@@ -24,9 +24,12 @@ class MapGenerator:
         self.seed = seed
         self.world = [[0 for _ in range(self.size)] for _ in range(self.size)]
         self.biom_clusters = []
-        random.seed(self.seed)
+        self.bioms_cout = 6
+        self.__generate_world()
         
-        self.__generate_land()
+    def __generate_world(self):
+        random.seed(self.seed)
+        self.__generate_template()
         self.__cut_edges()
         for _ in range(16):
             self.__smoothing()
@@ -40,10 +43,12 @@ class MapGenerator:
         for _ in range(5):
             self.__smoothing()
         
-    def __generate_land(self):
+    def __generate_template(self):
+        center_x, center_y = self.size // 2, self.size // 2
         for x in range(self.size):
             for y in range(self.size):
-                if random.randint(0, 1000) <= 605:
+                dist = math.hypot(x - center_x, y - center_y) 
+                if random.randint(0, 1000) <= 1000 - dist*5:
                     self.world[x][y] = 1
                     
                     
@@ -92,7 +97,7 @@ class MapGenerator:
                         self.world[x][y] = 0
 
     def __generate_bioms(self):
-        for i in range(4):
+        for i in range(self.bioms_cout):
             rx, ry = random.randint(0, self.size - 1), random.randint(0, self.size - 1)
             while self.world[rx][ry] != 1: rx, ry = random.randint(0, self.size - 1), random.randint(0, self.size - 1)
             self.world[rx][ry] = i + 2
