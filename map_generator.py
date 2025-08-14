@@ -19,10 +19,11 @@ def most_common_element(arr):
     return max(frequency.items(), key=lambda x: x[1])[0]
 
 class MapGenerator:
-    def __init__(self, world_size=200, seed=random.randint(0, 99999)):
+    def __init__(self, world_size, seed):
         self.size = world_size
         self.seed = seed
         self.world = [[0 for _ in range(self.size)] for _ in range(self.size)]
+        self.world_objects = [[0 for _ in range(self.size)] for _ in range(self.size)]
         self.biom_clusters = []
         self.bioms_cout = 6
         self.__generate_world()
@@ -38,10 +39,11 @@ class MapGenerator:
             self.__biom_grow_tick()
         self.__generate_rivers()
         self.__reset_bioms()
-        for _ in range(1):
+        for _ in range(2):
             self.__scale_water()
-        for _ in range(5):
+        for _ in range(8):
             self.__smoothing()
+        self.__generate_trees()
         
     def __generate_template(self):
         center_x, center_y = self.size // 2, self.size // 2
@@ -50,8 +52,7 @@ class MapGenerator:
                 dist = math.hypot(x - center_x, y - center_y) 
                 if random.randint(0, 1000) <= 1000 - dist*5:
                     self.world[x][y] = 1
-                    
-                    
+                      
     def __reset_bioms(self):
         for x in range(self.size):
             for y in range(self.size):
@@ -68,7 +69,6 @@ class MapGenerator:
                         step_world[x][y] = 0
         self.world = step_world
                 
-    
     def __smoothing(self):
         step_world = [[0 for _ in range(self.size)] for _ in range(self.size)]
         for x in range(self.size):
@@ -117,3 +117,10 @@ class MapGenerator:
                         self.world[near_coors[r][0]][near_coors[r][1]] = c + 2
                     else: self.biom_clusters[c].pop(i)
                 except IndexError: pass
+                
+    def __generate_trees(self):
+        for x in range(self.size):
+            for y in range(self.size):
+                if self.world[x][y] == 1:
+                    if random.randint(1, 100) <= 6:
+                        self.world_objects[x][y] = 1
